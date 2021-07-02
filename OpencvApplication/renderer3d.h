@@ -31,11 +31,13 @@ public:
     Qt3DCore::QEntity *root;
     Qt3DRender::QCamera *camera;
 
+    vector<Qt3DCore::QEntity*> m_lineEntityList, gridlist;
+
     void renderScene();
     void deleteChildrenRecursively(Qt3DCore::QNodeVector& vector);
     void delete_entity(Qt3DCore::QNode *node);
     void renderTags(vector<Vec3d> rvecs, vector<Vec3d>tvecs);
-    void drawLine(const QVector3D& start, const QVector3D& end, const QColor& color, Qt3DCore::QEntity *_rootEntity);
+    void drawLine(const QVector3D& start, const QVector3D& end,const QColor& color, Qt3DCore::QEntity *_rootEntity,vector<Qt3DCore::QEntity*> &list);
 };
 
 #endif // RENDERER3D_H

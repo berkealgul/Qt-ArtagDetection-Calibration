@@ -89,16 +89,16 @@ renderer3d::renderer3d(QObject *parent)
 
 void renderer3d::renderTags(vector<Vec3d> rvecs, vector<Vec3d>tvecs)
 {
-    Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(root);
-    camController->setLinearSpeed( 50.0f );
-    camController->setLookSpeed( 100.0f );
-    camController->setCamera(camera);
+    //Qt3DExtras::QOrbitCameraController *camController = new Qt3DExtras::QOrbitCameraController(root);
+    //camController->setLinearSpeed( 50.0f );
+    //camController->setLookSpeed( 100.0f );
+    //camController->setCamera(camera);
 
     //origin
-    drawLine({ 0, 0, 0 }, { 1, 0, 0 }, Qt::red, root); // X
-    drawLine({ 0, 0, 0 }, { 0, 1, 0 }, Qt::green, root); // Y
-    drawLine({ 0, 0, 0 }, { 0, 0, 1 }, Qt::blue, root); // Z
-
+    //drawLine({ 0, 0, 0 }, { 1, 0, 0 }, Qt::red, root); // X
+    //drawLine({ 0, 0, 0 }, { 0, 1, 0 }, Qt::green, root); // Y
+    //drawLine({ 0, 0, 0 }, { 0, 0, 1 }, Qt::blue, root); // Z
+    /*
     //grid
     float a = 5;
     for(int i = 0; i <= 10; i++)
@@ -107,7 +107,18 @@ void renderer3d::renderTags(vector<Vec3d> rvecs, vector<Vec3d>tvecs)
         drawLine({ 5, 0, a }, { -5, 0,  a}, QColor(0,0,0), root);
 
          a-=1;
+    }*/
+
+    while(!m_lineEntityList.empty()) {
+        Qt3DCore::QEntity* pEntity = m_lineEntityList[m_lineEntityList.size()-1];
+        Qt3DCore::QComponentVector entityVector = pEntity->components();
+        while (!entityVector.isEmpty()) {
+            pEntity->removeComponent(entityVector.last());
+            entityVector.pop_back();
+        }
+        m_lineEntityList.pop_back();
     }
+
 
     for (int i = 0, n = rvecs.size(); i < n; i++)
     {
@@ -121,33 +132,33 @@ void renderer3d::renderTags(vector<Vec3d> rvecs, vector<Vec3d>tvecs)
         QVector3D ye = q * QVector3D( 0, 1, 0 );
         QVector3D ze = q * QVector3D( 0, 0, -1 );
 
-        drawLine(s, s+xe, Qt::blue, root); // X
-        drawLine(s, s+ye, Qt::green, root); // Y
-        drawLine(s, s+ze, Qt::red, root); // Z
+        drawLine(s, s+xe, Qt::blue, root,m_lineEntityList); // X
+        drawLine(s, s+ye, Qt::green, root,m_lineEntityList); // Y
+        drawLine(s, s+ze, Qt::red, root,m_lineEntityList); // Z
 
-        drawLine(QVector3D(0,0,0), s, QColor(255, 145, 0), root);
+        drawLine(QVector3D(0,0,0), s, QColor(255, 145, 0), root,m_lineEntityList);
     }
 }
 
 void renderer3d::renderScene()
 {
-    drawLine({ 0, 0, 0 }, { 1, 0, 0 }, Qt::red, root); // X
-    drawLine({ 0, 0, 0 }, { 0, 1, 0 }, Qt::green, root); // Y
-    drawLine({ 0, 0, 0 }, { 0, 0, 1 }, Qt::blue, root); // Z
+    drawLine({ 0, 0, 0 }, { 1, 0, 0 }, Qt::red, root, gridlist); // X
+    drawLine({ 0, 0, 0 }, { 0, 1, 0 }, Qt::green, root, gridlist); // Y
+    drawLine({ 0, 0, 0 }, { 0, 0, 1 }, Qt::blue, root, gridlist); // Z
 
     //grid
     float a = 5;
     for(int i = 0; i <= 10; i++)
     {
-        drawLine({ a, 0, 5 }, { a, 0, -5 }, QColor(0,0,0), root);
-        drawLine({ 5, 0, a }, { -5, 0,  a}, QColor(0,0,0), root);
+        drawLine({ a, 0, 5 }, { a, 0, -5 }, QColor(0,0,0), root, gridlist);
+        drawLine({ 5, 0, a }, { -5, 0,  a}, QColor(0,0,0), root, gridlist);
 
          a-=1;
     }
 
 }
 
-void renderer3d::drawLine(const QVector3D& start, const QVector3D& end, const QColor& color, Qt3DCore::QEntity *_rootEntity)
+void renderer3d::drawLine(const QVector3D& start, const QVector3D& end, const QColor& color, Qt3DCore::QEntity *_rootEntity, vector<Qt3DCore::QEntity*>& list)
 {
     auto *geometry = new Qt3DRender::QGeometry(_rootEntity);
 
@@ -204,4 +215,7 @@ void renderer3d::drawLine(const QVector3D& start, const QVector3D& end, const QC
     auto *lineEntity = new Qt3DCore::QEntity(_rootEntity);
     lineEntity->addComponent(line);
     lineEntity->addComponent(material);
+
+
+    list.push_back(lineEntity);
 }
